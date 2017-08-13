@@ -24,7 +24,11 @@ int main (int argc, char* argv[])
         char request[max_length];
         std::cin.getline(request, max_length);
         size_t request_length = std::strlen(request);
-        s.send_to(boost::asio::buffer(request, request_length), endpoint);
+
+        for (int i=0; i<10; ++i)
+        {
+            s.send_to(boost::asio::buffer(request, request_length), endpoint);
+        }
 
         char reply[max_length];
         udp::endpoint sender_endpoint;

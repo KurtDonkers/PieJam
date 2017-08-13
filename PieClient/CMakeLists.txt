@@ -13,6 +13,7 @@ file (GLOB SOURCES "src/*.cpp")
 
 add_executable(${project_name} ${SOURCES})
 
+FIND_PACKAGE(Threads)
 
 SET(Boost_USE_STATIC_LIBS ON)
 SET(Boost_USE_MULTITHREAD ON)
@@ -31,3 +32,5 @@ IF(Boost_FOUND)
     MESSAGE ("BOOST FOUND LIBS ${USED_LIBS}")
     TARGET_LINK_LIBRARIES(${project_name} ${USED_LIBS})
 ENDIF()
+
+TARGET_LINK_LIBRARIES(${project_name} ${CMAKE_THREAD_LIBS_INIT})
