@@ -25,7 +25,9 @@ public:
                     for (unsigned int cidx = 0; cidx < bytes_recvd; cidx++)
                     {
                         std::cout << mData[cidx];
+                        mDataToSend[bytes_recvd-cidx-1] = mData[cidx];
                     }
+                    mDataToSend[bytes_recvd] = '\0';
                     std::cout << "]." << std::endl;
                     do_send (bytes_recvd);
                 }
@@ -39,7 +41,7 @@ public:
     void do_send (std::size_t length)
     {
         mSocket.async_send_to(
-            boost::asio::buffer(mData, length), mSenderEndpoint,
+            boost::asio::buffer(mDataToSend, length), mSenderEndpoint,
             [this](boost::system::error_code /*ec*/, std::size_t /*bytes_sent*/)
             {
               do_receive();
@@ -51,6 +53,7 @@ private:
     udp::endpoint mSenderEndpoint;
     enum { max_length = 1024 };
     char mData[max_length];
+    char mDataToSend[max_length];
 };
 
 int main (int argc, char* argv[])
