@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.5)
 
 set(project_name PieJam)
 set(version 0.0.1)
