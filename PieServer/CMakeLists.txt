@@ -13,10 +13,11 @@ file (GLOB SOURCES "src/*.cpp")
 
 add_executable(${project_name} ${SOURCES})
 
+FIND_PACKAGE(Threads)
 
 SET(Boost_USE_STATIC_LIBS ON)
 SET(Boost_USE_MULTITHREAD ON)
-FIND_PACKAGE(Boost 1.58.0 REQUIRED COMPONENTS system thread regex)
+FIND_PACKAGE(Boost 1.55.0 REQUIRED COMPONENTS system thread)
 IF(Boost_FOUND)
     MESSAGE ("BOOST FOUND LIBS ")
     MESSAGE ("BOOST FOUND INCDIRS ${Boost_INCLUDE_DIRS}")
@@ -26,8 +27,11 @@ IF(Boost_FOUND)
     IF (WIN32)
         SET (USED_LIBS libboost_system-mt.a ws2_32)
     ELSE()
-        SET(USED_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_THREAD_LIBRARY} ${Boost_REGEX_LIBRARY})
+        SET(USED_LIBS ${Boost_SYSTEM_LIBRARY} ${Boost_THREAD_LIBRARY})
     ENDIF()
     MESSAGE ("BOOST FOUND LIBS ${USED_LIBS}")
     TARGET_LINK_LIBRARIES(${project_name} ${USED_LIBS})
 ENDIF()
+
+TARGET_LINK_LIBRARIES(${project_name} ${CMAKE_THREAD_LIBS_INIT})
+
