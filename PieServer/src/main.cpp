@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "NetworkHandler.hpp"
+#include "GfxRenderer.hpp"
 
 int main (int argc, char* argv[])
 {
@@ -10,7 +11,11 @@ int main (int argc, char* argv[])
     NetworkHandler aNetworkHandler;
     aNetworkHandler.StartNetworkHandler();
 
-    std::cout << "Hier ben ik " << std::endl;
+    std::cout << "Started network handler." << std::endl;
+    
+    GfxRenderer aGfxRenderer;
+    aGfxRenderer.StartGfxRenderer();
 
+    std::cout << "Started graphics renderer." << std::endl;
     return 0;
 }
