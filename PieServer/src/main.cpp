@@ -8,9 +8,9 @@ int main (int argc, char* argv[])
     std::cout << "Hoi Pipeloi PieJam." << std::endl;
 
     NetworkHandler aNetworkHandler;
-    aNetworkHandler.StartServer();
+    aNetworkHandler.StartNetworkHandler();
 
     std::cout << "Hier ben ik " << std::endl;
 
-  return 0;
+    return 0;
 }

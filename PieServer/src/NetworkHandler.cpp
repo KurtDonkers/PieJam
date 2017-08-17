@@ -43,6 +43,23 @@ void UdpServer::DoReceive()
         });
 }
 
+
+NetworkHandler::~NetworkHandler()
+{
+    StopNetworkHandler();
+}
+
+void NetworkHandler::StartNetworkHandler()
+{
+    mNetworkThread = new std::thread (&NetworkHandler::StartServer, this);
+}
+
+void NetworkHandler::StopNetworkHandler()
+{
+    mNetworkThread->join();
+}
+
+
 void NetworkHandler::StartServer ()
 {
     try

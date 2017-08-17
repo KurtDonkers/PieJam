@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <thread>
 
 class UdpServer
 {
@@ -21,11 +22,15 @@ class NetworkHandler
 {
 public:
     NetworkHandler() = default;
-    ~NetworkHandler() = default;
+    ~NetworkHandler();
 
+    void StartNetworkHandler();
+    void StopNetworkHandler();
+
+private:
     void StartServer ();
 
 private:
     unsigned short mPortNumber = 33100;
-    
+    std::thread* mNetworkThread;
 };
