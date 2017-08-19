@@ -1,19 +1,77 @@
 #include "Star.hpp"
 
 #include <math.h>
+#include <iostream>
 
 #include "Util.hpp"
 
 Star::Star (void)
 {
-    mInitPos[0] = SimUtil::DrawRandom (-2.0f, 2.0f);
-    mInitPos[1] = SimUtil::DrawRandom (-2.0f, 2.0f);
-    mRadius = SimUtil::DrawRandom (0.01f, 0.3f);
-    mFrequencyAchtigIets = SimUtil::DrawRandom (-5.0f, 5.0f);
+    mInitPos[0] = SimUtil::DrawRandom (-2.0, 2.0);
+    mInitPos[1] = SimUtil::DrawRandom (-2.0, 2.0);
+    //mInitPos[0] = -1.0;
+    //mInitPos[1] = -1.0;
+    mRadius = SimUtil::DrawRandom (0.01, 0.3);
+    mFrequencyAchtigIets = SimUtil::DrawRandom (-5.0, 5.0);
+    mPos[0] = mInitPos[0];
+    mPos[1] = mInitPos[1];
+    mVel[0] = SimUtil::DrawRandom (-0.1, 0.1);
+    mVel[1] = SimUtil::DrawRandom (-0.1, 0.1);
+    //mVel[0] = 0.0;
+    //mVel[1] = 0.1;
+    mAccel[0] = 0.0;
+    mAccel[1] = 0.0;
 }
 
-void Star::Update (double simtime)
+void Star::Update (double simtime, double delta, std::vector<std::unique_ptr<Planet>>& planets, std::vector<std::unique_ptr<Star>>& stars)
 {
-    mPos[0] = mInitPos[0] + sin (simtime * mFrequencyAchtigIets) * mRadius;
-    mPos[1] = mInitPos[1] + cos (simtime * mFrequencyAchtigIets) * mRadius;
+    mdelta = delta;
+    mAccel[0] = 0.0;
+    mAccel[1] = 0.0;
+    for (auto &planet : planets)
+    {
+        double dx = 100.0 * (planet->GetPosX() - mPos[0]);
+        double dy = 100.0 * (planet->GetPosY() - mPos[1]);
+        double rsquared = (dx * dx) + (dy * dy);
+        double r = sqrt (rsquared);
+        double masssquared = GetMass() * planet->GetMass();
+
+        double fg = SimUtil::cG * masssquared / rsquared;
+
+        double fx = (dx / r) * fg;
+        double fy = (dy / r) * fg;
+        
+        mAccel[0] += fx / GetMass();
+        mAccel[1] += fy / GetMass();
+    }
+#if 0
+    for (auto &star : stars)
+    {
+        if (this != star.get()) 
+        {
+            double dx = 100.0 * (star->GetPosX() - mPos[0]);
+            double dy = 100.0 * (star->GetPosY() - mPos[1]);
+            double rsquared = (dx * dx) + (dy * dy);
+            double r = sqrt (rsquared);
+            double masssquared = GetMass() * star->GetMass();
+    
+            double fg = SimUtil::cG * masssquared / rsquared;
+    
+            double fx = (dx / r) * fg;
+            double fy = (dy / r) * fg;
+            
+            mAccel[0] += fx / GetMass();
+            mAccel[1] += fy / GetMass();
+        }
+    }
+#endif
+    mVel[0] += mAccel[0] * delta * 0.1;
+    mVel[1] += mAccel[1] * delta * 0.1;
+    mPos[0] += mVel[0] * delta;
+    mPos[1] += mVel[1] * delta;
+}
+
+void Star::DebugOutput (void)
+{
+    std::cout << mAccel[0] << " - " << mAccel[1] << " - " << mdelta << std::endl;
 }

@@ -1,22 +1,32 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+
+#include "Planet.hpp"
+
+
 class Star 
 {
 public:
     Star ();
     ~Star () = default;
 
-    void Update (double simtime);
-    float GetPosX (void) {return (mPos[0]);}
-    float GetPosY (void) {return (mPos[1]);}
-
+    void Update (double simtime, double delta, std::vector<std::unique_ptr<Planet>>& planets, std::vector<std::unique_ptr<Star>>& stars);
+    double GetPosX (void) {return (mPos[0]);}
+    double GetPosY (void) {return (mPos[1]);}
+    double GetMass (void) {return (mMass);}
+    void DebugOutput (void);
+    
 private:
-    float mPos[2];
-    float mVel[2];
-    float mAccel[2];
+    double mPos[2];
+    double mVel[2];
+    double mAccel[2];
+    double mMass = 100.0;
 
     // tmp
-    float mFrequencyAchtigIets;
-    float mRadius;
-    float mInitPos[2];
+    double mFrequencyAchtigIets;
+    double mRadius;
+    double mInitPos[2];
+    double mdelta = 0.0;
 };

@@ -6,12 +6,10 @@
 
 Planet::Planet (void)
 {
-    mPos[0] = 0.0f;
-    mPos[1] = 0.0f;
+    mPos[0] = SimUtil::DrawRandom (-1.0, 1.0);
+    mPos[1] = SimUtil::DrawRandom (-1.0, 1.0);
 }
 
 void Planet::Update (double simtime)
 {
-    mPos[0] = mInitPos[0] + sin (simtime * mFrequencyAchtigIets) * mRadius;
-    mPos[1] = mInitPos[1] + cos (simtime * mFrequencyAchtigIets) * mRadius;
 }

@@ -7,16 +7,19 @@ public:
     ~Planet () = default;
 
     void Update (double simtime);
-    float GetPosX (void) {return (mPos[0]);}
-    float GetPosY (void) {return (mPos[1]);}
+    double GetPosX (void) {return (mPos[0]);}
+    double GetPosY (void) {return (mPos[1]);}
+    double GetMass (void) {return (mMass);}
 
 private:
-    float mPos[2];
-    float mVel[2];
-    float mAccel[2];
+    double mPos[2];
+    double mVel[2];
+    double mAccel[2];
+    double mMass = 100000000.0;
 
     // tmp
-    float mFrequencyAchtigIets;
-    float mRadius;
-    float mInitPos[2];
+    double mFrequencyAchtigIets;
+    double mRadius;
+    double mInitPos[2];
 };
+

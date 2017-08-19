@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Star.hpp"
+#include "Planet.hpp"
 
 /* Copyright (c) Mark J. Kilgard, 1997. */
 
@@ -26,9 +27,11 @@ GLint faces[6][4] = {  /* Vertex indices for the 6 faces of a cube. */
 GLfloat v[8][3];  /* Will be filled in with X,Y,Z vertexes. */
 
 static std::chrono::time_point<std::chrono::system_clock> simtimeStart;
+double mPrevSimTime = 0.0;
 
 const int NROF_STARS = 1000;
 std::vector<std::unique_ptr<Star>> gStars;
+std::vector<std::unique_ptr<Planet>> gPlanets;
 
 void drawBox(void)
 {
@@ -100,19 +103,19 @@ void drawSolarSystem (void)
     // Draw Planets
     glPointSize (30.0f);
     glBegin (GL_POINTS);
-        glColor3f (1.0f, 1.0f, 1.0f);
-        for (int s = 0; s < NROF_STARS; ++s)
+        glColor3f (0.0f, 0.0f, 1.0f);
+        for (auto& planet: gPlanets)
         {
-            glVertex2f (gStars[s]->GetPosX(), gStars[s]->GetPosY());
+            glVertex2f (planet->GetPosX(), planet->GetPosY());
         }
     glEnd();
     // Draw Stars
     glPointSize (3.0f);
     glBegin (GL_POINTS);
         glColor3f (1.0f, 1.0f, 1.0f);
-        for (int s = 0; s < NROF_STARS; ++s)
+        for (auto& star: gStars)
         {
-            glVertex2f (gStars[s]->GetPosX(), gStars[s]->GetPosY());
+            glVertex2f (star->GetPosX(), star->GetPosY());
         }
     glEnd();
 }
@@ -120,10 +123,17 @@ void drawSolarSystem (void)
 // heartbeat update
 void update (double simtime)
 {
-    for (int s = 0; s < NROF_STARS; ++s)
+    double delta = simtime - mPrevSimTime;
+    mPrevSimTime = simtime;
+    for (auto& planet: gPlanets)
     {
-        gStars[s]->Update (simtime);
+        planet->Update (simtime);
     }
+    for (auto& star: gStars)
+    {
+        star->Update (simtime, delta, gPlanets, gStars);
+    }
+    //gStars[0]->DebugOutput();
 }
 
 void timerfunc (int value) {
@@ -157,6 +167,12 @@ void init (void)
         std::unique_ptr<Star> star (new Star());
         gStars.push_back (std::move (star));
     }
+    for (int s = 0; s < 1; ++s)
+    {
+        std::unique_ptr<Planet> planet (new Planet());
+        gPlanets.push_back (std::move (planet));
+    }
+
 }
 
 /* Handler for window re-size event. Called back when the window first appears and
