@@ -1,5 +1,7 @@
 #include "GfxRenderer.hpp"
 
+#include <chrono>
+#include <math.h>
 #include <GL/glut.h>
 
 /* Copyright (c) Mark J. Kilgard, 1997. */
@@ -10,16 +12,21 @@
 
 /* This program was requested by Patrick Earl; hopefully someone else
    will write the equivalent Direct3D immediate mode program. */
-   GLfloat light_diffuse[] = {1.0, 0.0, 0.0, 1.0};  /* Red diffuse light. */
-   GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};  /* Infinite light location. */
-   GLfloat n[6][3] = {  /* Normals for the 6 faces of a cube. */
-     {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0},
-     {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0, -1.0} };
-   GLint faces[6][4] = {  /* Vertex indices for the 6 faces of a cube. */
-     {0, 1, 2, 3}, {3, 2, 6, 7}, {7, 6, 5, 4},
-     {4, 5, 1, 0}, {5, 6, 2, 1}, {7, 4, 0, 3} };
-   GLfloat v[8][3];  /* Will be filled in with X,Y,Z vertexes. */
-   
+GLfloat light_diffuse[] = {1.0, 0.0, 0.0, 1.0};  /* Red diffuse light. */
+GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};  /* Infinite light location. */
+GLfloat n[6][3] = {  /* Normals for the 6 faces of a cube. */
+ {-1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {1.0, 0.0, 0.0},
+ {0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0, -1.0} };
+GLint faces[6][4] = {  /* Vertex indices for the 6 faces of a cube. */
+ {0, 1, 2, 3}, {3, 2, 6, 7}, {7, 6, 5, 4},
+ {4, 5, 1, 0}, {5, 6, 2, 1}, {7, 4, 0, 3} };
+GLfloat v[8][3];  /* Will be filled in with X,Y,Z vertexes. */
+
+static std::chrono::time_point<std::chrono::system_clock> simtimeStart;
+
+static GLfloat tmpposx = 0.0f;
+static GLfloat tmpposy = 0.0f;
+
 void drawBox(void)
 {
     int i;
@@ -85,17 +92,43 @@ void drawReferenceObjects (void)
     glEnd();
 }
 
-void display(void)
+void drawSolarSystem (void)
+{
+    glPointSize (3.0f);
+    glBegin (GL_POINTS);
+        glColor3f (0.0f, 0.0f, 1.0f);
+        glVertex2f (tmpposx, tmpposy);
+    glEnd();
+}
+
+// heartbeat update
+void update (double simtime)
+{
+    tmpposx = sin (simtime);
+    tmpposy = cos (simtime);
+}
+
+void timerfunc (int value) {
+    std::chrono::time_point<std::chrono::system_clock> simtime = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = simtime - simtimeStart;
+    update (elapsed_seconds.count());
+    glutPostRedisplay();    // Post a paint request to activate display()
+    glutTimerFunc (30, timerfunc, 0); // subsequent timer call at milliseconds
+}
+
+void display (void)
 {
     glClear(GL_COLOR_BUFFER_BIT);   // Clear the color buffer with current clearing color
     drawReferenceObjects();
+    drawSolarSystem();
     
-      glutSwapBuffers();
-   }
+    glutSwapBuffers();
+}
 
 void init (void)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
+    simtimeStart = std::chrono::system_clock::now();
 }
 
 /* Handler for window re-size event. Called back when the window first appears and
@@ -135,11 +168,12 @@ void GfxRenderer::StartGlut ()
 {
     int argc = 0;
     glutInit(&argc, nullptr);
-    //glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitDisplayMode(GLUT_DOUBLE);
-    glutCreateWindow("PieJam");
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape); 
+    glutInitDisplayMode (GLUT_DOUBLE);
+    glutCreateWindow ("PieJam");
+    glutDisplayFunc (display);
+    glutReshapeFunc (reshape);
+    glutTimerFunc (0, timerfunc, 0);
+    //glutIdleFunc (update); 
     init();
     glutMainLoop();
 }
