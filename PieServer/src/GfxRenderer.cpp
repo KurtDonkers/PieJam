@@ -27,7 +27,7 @@ GLfloat v[8][3];  /* Will be filled in with X,Y,Z vertexes. */
 
 static std::chrono::time_point<std::chrono::system_clock> simtimeStart;
 
-const int NROF_STARS = 10000;
+const int NROF_STARS = 1000;
 std::vector<std::unique_ptr<Star>> gStars;
 
 void drawBox(void)
@@ -121,17 +121,20 @@ void timerfunc (int value) {
     std::chrono::duration<double> elapsed_seconds = simtime - simtimeStart;
     update (elapsed_seconds.count());
     glutPostRedisplay();    // Post a paint request to activate display()
-    glutTimerFunc (30, timerfunc, 0); // subsequent timer call at milliseconds
+    //glutTimerFunc (10, timerfunc, 0); // subsequent timer call at milliseconds
 }
 
 void display (void)
 {
     glClear(GL_COLOR_BUFFER_BIT);   // Clear the color buffer with current clearing color
-    drawReferenceObjects();
+    //drawReferenceObjects();
     drawSolarSystem();
     
     glutSwapBuffers();
+//	glFlush();
+    glutTimerFunc (30, timerfunc, 0); // subsequent timer call at milliseconds
 }
+
 
 void init (void)
 {
@@ -190,6 +193,7 @@ void GfxRenderer::StartGlut ()
     glutTimerFunc (0, timerfunc, 0);
     //glutIdleFunc (update); 
     init();
+    glutFullScreen();
     glutMainLoop();
 }
 
