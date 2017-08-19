@@ -35,50 +35,92 @@ void drawBox(void)
     }
 }
 
+void drawReferenceObjects (void)
+{
+    glBegin(GL_QUADS); 
+        glColor3f(1.0f, 0.0f, 0.0f); // Red
+        glVertex2f(-0.8f, 0.1f);     // Define vertices in counter-clockwise (CCW) order
+        glVertex2f(-0.2f, 0.1f);     //  so that the normal (front-face) is facing you
+        glVertex2f(-0.2f, 0.7f);
+        glVertex2f(-0.8f, 0.7f);
+
+        glColor3f(0.0f, 1.0f, 0.0f); // Green
+        glVertex2f(-0.7f, -0.6f);
+        glVertex2f(-0.1f, -0.6f);
+        glVertex2f(-0.1f,  0.0f);
+        glVertex2f(-0.7f,  0.0f);
+
+        glColor3f(0.2f, 0.2f, 0.2f); // Dark Gray
+        glVertex2f(-0.9f, -0.7f);
+        glColor3f(1.0f, 1.0f, 1.0f); // White
+        glVertex2f(-0.5f, -0.7f);
+        glColor3f(0.2f, 0.2f, 0.2f); // Dark Gray
+        glVertex2f(-0.5f, -0.3f);
+        glColor3f(1.0f, 1.0f, 1.0f); // White
+        glVertex2f(-0.9f, -0.3f);
+    glEnd();
+ 
+    glBegin(GL_TRIANGLES);          // Each set of 3 vertices form a triangle
+        glColor3f(0.0f, 0.0f, 1.0f); // Blue
+        glVertex2f(0.1f, -0.6f);
+        glVertex2f(0.7f, -0.6f);
+        glVertex2f(0.4f, -0.1f);
+
+        glColor3f(1.0f, 0.0f, 0.0f); // Red
+        glVertex2f(0.3f, -0.4f);
+        glColor3f(0.0f, 1.0f, 0.0f); // Green
+        glVertex2f(0.9f, -0.4f);
+        glColor3f(0.0f, 0.0f, 1.0f); // Blue
+        glVertex2f(0.6f, -0.9f);
+    glEnd();
+ 
+    glBegin(GL_POLYGON);            // These vertices form a closed polygon
+        glColor3f(1.0f, 1.0f, 0.0f); // Yellow
+        glVertex2f(0.4f, 0.2f);
+        glVertex2f(0.6f, 0.2f);
+        glVertex2f(0.7f, 0.4f);
+        glVertex2f(0.6f, 0.6f);
+        glVertex2f(0.4f, 0.6f);
+        glVertex2f(0.3f, 0.4f);
+    glEnd();
+}
+
 void display(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawBox();
-    glutSwapBuffers();
-}
+    glClear(GL_COLOR_BUFFER_BIT);   // Clear the color buffer with current clearing color
+    drawReferenceObjects();
+    
+      glutSwapBuffers();
+   }
 
-void init(void)
+void init (void)
 {
-    /* Setup cube vertex data. */
-    v[0][0] = v[1][0] = v[2][0] = v[3][0] = -1;
-    v[4][0] = v[5][0] = v[6][0] = v[7][0] = 1;
-    v[0][1] = v[1][1] = v[4][1] = v[5][1] = -1;
-    v[2][1] = v[3][1] = v[6][1] = v[7][1] = 1;
-    v[0][2] = v[3][2] = v[4][2] = v[7][2] = 1;
-    v[1][2] = v[2][2] = v[5][2] = v[6][2] = -1;
-
-    /* Enable a single OpenGL light. */
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHTING);
-
-    /* Use depth buffering for hidden surface elimination. */
-    glEnable(GL_DEPTH_TEST);
-
-    /* Setup the view of the cube. */
-    glMatrixMode(GL_PROJECTION);
-    gluPerspective( /* field of view in degree */ 40.0,
-    /* aspect ratio */ 1.0,
-    /* Z near */ 1.0, /* Z far */ 10.0);
-    glMatrixMode(GL_MODELVIEW);
-    gluLookAt(0.0, 0.0, 5.0,  /* eye is at (0,0,5) */
-    0.0, 0.0, 0.0,      /* center is at (0,0,0) */
-    0.0, 1.0, 0.);      /* up is in positive Y direction */
-
-    /* Adjust cube position to be asthetic angle. */
-    glTranslatef(0.0, 0.0, -1.0);
-    glRotatef(60, 1.0, 0.0, 0.0);
-    glRotatef(-20, 0.0, 0.0, 1.0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 }
 
-
-
+/* Handler for window re-size event. Called back when the window first appears and
+   whenever the window is re-sized with its new width and height */
+void reshape (GLsizei width, GLsizei height)
+{
+    // Compute aspect ratio of the new window
+    if (height == 0) height = 1;                // To prevent divide by 0
+    GLfloat aspect = (GLfloat)width / (GLfloat)height;
+  
+    // Set the viewport to cover the new window
+    glViewport(0, 0, width, height);
+  
+    // Set the aspect ratio of the clipping area to match the viewport
+    glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
+    glLoadIdentity();             // Reset the projection matrix
+    if (width >= height) {
+      // aspect >= 1, set the height from -1 to 1, with larger width
+       gluOrtho2D(-1.0 * aspect, 1.0 * aspect, -1.0, 1.0);
+    } else {
+       // aspect < 1, set the width to -1 to 1, with larger height
+      gluOrtho2D(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect);
+    }
+ }
+  
 void GfxRenderer::StartGfxRenderer()
 {
     mGfxThread = new std::thread (&GfxRenderer::StartGlut, this);
@@ -93,9 +135,11 @@ void GfxRenderer::StartGlut ()
 {
     int argc = 0;
     glutInit(&argc, nullptr);
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    //glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE);
     glutCreateWindow("PieJam");
     glutDisplayFunc(display);
+    glutReshapeFunc(reshape); 
     init();
     glutMainLoop();
 }
