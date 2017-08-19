@@ -97,6 +97,16 @@ void drawReferenceObjects (void)
 
 void drawSolarSystem (void)
 {
+    // Draw Planets
+    glPointSize (30.0f);
+    glBegin (GL_POINTS);
+        glColor3f (1.0f, 1.0f, 1.0f);
+        for (int s = 0; s < NROF_STARS; ++s)
+        {
+            glVertex2f (gStars[s]->GetPosX(), gStars[s]->GetPosY());
+        }
+    glEnd();
+    // Draw Stars
     glPointSize (3.0f);
     glBegin (GL_POINTS);
         glColor3f (1.0f, 1.0f, 1.0f);
