@@ -1,8 +1,11 @@
 #include "GfxRenderer.hpp"
 
 #include <chrono>
-#include <math.h>
 #include <GL/glut.h>
+#include <ctime>
+#include <vector>
+
+#include "Star.hpp"
 
 /* Copyright (c) Mark J. Kilgard, 1997. */
 
@@ -24,8 +27,8 @@ GLfloat v[8][3];  /* Will be filled in with X,Y,Z vertexes. */
 
 static std::chrono::time_point<std::chrono::system_clock> simtimeStart;
 
-static GLfloat tmpposx = 0.0f;
-static GLfloat tmpposy = 0.0f;
+const int NROF_STARS = 10000;
+std::vector<std::unique_ptr<Star>> gStars;
 
 void drawBox(void)
 {
@@ -96,16 +99,21 @@ void drawSolarSystem (void)
 {
     glPointSize (3.0f);
     glBegin (GL_POINTS);
-        glColor3f (0.0f, 0.0f, 1.0f);
-        glVertex2f (tmpposx, tmpposy);
+        glColor3f (1.0f, 1.0f, 1.0f);
+        for (int s = 0; s < NROF_STARS; ++s)
+        {
+            glVertex2f (gStars[s]->GetPosX(), gStars[s]->GetPosY());
+        }
     glEnd();
 }
 
 // heartbeat update
 void update (double simtime)
 {
-    tmpposx = sin (simtime);
-    tmpposy = cos (simtime);
+    for (int s = 0; s < NROF_STARS; ++s)
+    {
+        gStars[s]->Update (simtime);
+    }
 }
 
 void timerfunc (int value) {
@@ -127,8 +135,15 @@ void display (void)
 
 void init (void)
 {
+    srand (time (nullptr)); // seed random generator
+    
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
     simtimeStart = std::chrono::system_clock::now();
+    for (int s = 0; s < NROF_STARS; ++s)
+    {
+        std::unique_ptr<Star> star (new Star());
+        gStars.push_back (std::move (star));
+    }
 }
 
 /* Handler for window re-size event. Called back when the window first appears and

@@ -15,7 +15,7 @@ add_executable(${project_name} ${SOURCES})
 
 FIND_PACKAGE(Threads)
 
-SET(Boost_USE_STATIC_LIBS ON)
+SET(Boost_USE_STATIC_LIBS ON) 
 SET(Boost_USE_MULTITHREAD ON)
 FIND_PACKAGE(Boost 1.55.0 REQUIRED COMPONENTS system thread)
 IF(Boost_FOUND)
