@@ -17,13 +17,18 @@ public:
     double GetPosY (void) {return (mPos[1]);}
     double GetMass (void) {return (mMass);}
     void DebugOutput (void);
+    double GetVeerConstante (void) {return (mCVeer);}
     
 private:
+    void UpdateStar (double simtime, double delta, std::vector<std::unique_ptr<Planet>>& planets, std::vector<std::unique_ptr<Star>>& stars);
+    void UpdateVeer (double simtime, double delta, std::vector<std::unique_ptr<Planet>>& planets, std::vector<std::unique_ptr<Star>>& stars);
+    
     double mPos[2];
     double mVel[2];
     double mAccel[2];
-    double mMass = 100.0;
-
+    double mMass = 10.0;
+    double mCVeer = 0.2;
+    
     // tmp
     double mFrequencyAchtigIets;
     double mRadius;

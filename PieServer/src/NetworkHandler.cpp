@@ -62,12 +62,14 @@ void NetworkHandler::StopNetworkHandler()
 
 void NetworkHandler::StartServer ()
 {
+    std::cout << "sizeof int " << sizeof(int) << std::endl;
+    std::cout << "sizeof input " << sizeof(struct CtrlToPie) << std::endl;
+    std::cout << "sizeof output " << sizeof(struct PieToCtrl) << std::endl;
     try
     {
         boost::asio::io_service io_service;
         UdpServer s (io_service, mPortNumber);
         io_service.run();
-
     }
     catch (std::exception& e)
     {

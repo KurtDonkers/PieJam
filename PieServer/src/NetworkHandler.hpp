@@ -3,6 +3,21 @@
 #include <boost/asio.hpp>
 #include <thread>
 
+struct CtrlToPie
+{
+    int cmdid;
+    int clientid;
+    int nrofstars;
+    float r; // [0..1]
+    float g; // [0..1]
+    float b; // [0..1]
+};
+
+struct PieToCtrl
+{
+    int responseid;
+};
+
 class UdpServer
 {
 public:

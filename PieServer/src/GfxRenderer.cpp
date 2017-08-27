@@ -8,14 +8,6 @@
 #include "Star.hpp"
 #include "Planet.hpp"
 
-/* Copyright (c) Mark J. Kilgard, 1997. */
-
-/* This program is freely distributable without licensing fees 
-   and is provided without guarantee or warrantee expressed or 
-   implied. This program is -not- in the public domain. */
-
-/* This program was requested by Patrick Earl; hopefully someone else
-   will write the equivalent Direct3D immediate mode program. */
 GLfloat light_diffuse[] = {1.0, 0.0, 0.0, 1.0};  /* Red diffuse light. */
 GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};  /* Infinite light location. */
 GLfloat n[6][3] = {  /* Normals for the 6 faces of a cube. */
@@ -167,7 +159,7 @@ void init (void)
         std::unique_ptr<Star> star (new Star());
         gStars.push_back (std::move (star));
     }
-    for (int s = 0; s < 1; ++s)
+    for (int s = 0; s < 4; ++s)
     {
         std::unique_ptr<Planet> planet (new Planet());
         gPlanets.push_back (std::move (planet));
