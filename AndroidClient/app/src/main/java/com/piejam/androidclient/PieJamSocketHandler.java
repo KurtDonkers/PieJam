@@ -9,27 +9,22 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 class SenderReceiver implements Runnable {
-    public boolean mShouldStop = false;
-    public AndroidToPie mSendToPie = new AndroidToPie();
-    public PieToAndroid mResponseFromPie = new PieToAndroid();
+    boolean mShouldStop = false;
+    AndroidToPie mSendToPie = new AndroidToPie();
+    PieToAndroid mResponseFromPie = new PieToAndroid();
     private DatagramSocket mClientSocket;
-    private String mServerIp;
     private int mServerPort;
     private InetAddress mServerIpAddress;
-    private byte[] send_data = new byte[1024];
-    private byte[] receiveData = new byte[1024];
+    private byte[] receiveData = new byte[PieToAndroid.P2A_MSG_SIZE];
 
-    public SenderReceiver (String ip, int port) {
+    SenderReceiver(String ip, int port) {
         mClientSocket = null;
-        mServerIp = ip;
         mServerPort = port;
         mServerIpAddress = null;
         try {
             mClientSocket = new DatagramSocket (mServerPort);
-            mServerIpAddress = InetAddress.getByName (mServerIp);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (UnknownHostException e) {
+            mServerIpAddress = InetAddress.getByName (ip);
+        } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
         }
     }
@@ -37,18 +32,16 @@ class SenderReceiver implements Runnable {
     @Override
     public void run() {
         while (!mShouldStop) {
-            send_data = mSendToPie.stringie.getBytes();
+            byte[] send_data = mSendToPie.GetByteStream();
 
-            DatagramPacket send_packet = new DatagramPacket(send_data, mSendToPie.stringie.length(), mServerIpAddress, mServerPort);
+            DatagramPacket send_packet = new DatagramPacket(send_data, send_data.length, mServerIpAddress, mServerPort);
             try {
                 mClientSocket.send(send_packet);
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 mClientSocket.receive(receivePacket);
-                mResponseFromPie.response = new String(receivePacket.getData());
+                mResponseFromPie.FillFromByteStream(receivePacket.getData());
                 Thread.sleep(1000);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
@@ -57,16 +50,16 @@ class SenderReceiver implements Runnable {
 }
 
 
-public class PieJamSocketHandler {
+class PieJamSocketHandler {
     private Thread mSendReceiveThread;
-    public SenderReceiver mSenderReceiver = null;
+    private SenderReceiver mSenderReceiver = null;
 
-    public void connect () {
+    void connect() {
         mSenderReceiver = new SenderReceiver("192.168.2.188", 33100);
         mSendReceiveThread = new Thread (mSenderReceiver);
         mSendReceiveThread.start();
     }
-    public void disconnect () {
+    void disconnect() {
         mSenderReceiver.mShouldStop = true;
         try {
             mSendReceiveThread.join();
@@ -76,13 +69,13 @@ public class PieJamSocketHandler {
         }
     }
 
-    public void setSendData (AndroidToPie senddata) {
+    void setSendData(AndroidToPie senddata) {
         if (mSenderReceiver != null) {
             mSenderReceiver.mSendToPie = senddata;
         }
     }
 
-    public PieToAndroid getRcvData () {
+    PieToAndroid getRcvData() {
         if (mSenderReceiver != null) {
             return (mSenderReceiver.mResponseFromPie);
         }

@@ -9,6 +9,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -20,7 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
     public PieJamSocketHandler mPieJamSocketHandler = new PieJamSocketHandler();
     private Handler handler = new Handler();
-    TextView mResponse;
+    TextView mResponseOutput;
+    EditText mClientIdInput;
+    SeekBar mNrofStarsInput;
     private int mCounter = 0;
 
     @Override
@@ -38,24 +42,34 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        mResponse = (TextView) findViewById(R.id.poep);
+        mResponseOutput = (TextView) findViewById(R.id.reply);
+        mClientIdInput = (EditText) findViewById(R.id.clientidEdit);
+        mNrofStarsInput = (SeekBar) findViewById(R.id.nrofStarsEdit);
         //mPieJamSocketHandler.connect();
-        final AndroidToPie senddata = new AndroidToPie();
-        senddata.stringie = "PomBommelebom";
+        final AndroidToPie senddata = SetPacketToSend();
         mPieJamSocketHandler.setSendData(senddata);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 PieToAndroid rcvdata = mPieJamSocketHandler.getRcvData();
-                mResponse.setText (rcvdata.response);
-                handler.postDelayed(this, 100);
-                AndroidToPie senddata2 = new AndroidToPie();
-                senddata2.stringie = senddata.stringie + Integer.toString(mCounter++);
+                mResponseOutput.setText (Integer.toString(rcvdata.responseid));
+                AndroidToPie senddata2 = SetPacketToSend();
                 mPieJamSocketHandler.setSendData(senddata2);
+                handler.postDelayed(this, 100);
             }
         }, 100);
     }
 
+    AndroidToPie SetPacketToSend () {
+        AndroidToPie senddata = new AndroidToPie();
+        senddata.cmdid = 42;
+        senddata.clientid = 0;//Integer.parseInt(mClientIdInput.getText().toString());
+        senddata.nrofstars = mNrofStarsInput.getProgress();
+        senddata.r = 0.0f;
+        senddata.g = 0.0f;
+        senddata.b = 0.0f;
+        return (senddata);
+    }
 
     @Override
     protected void onResume() {
