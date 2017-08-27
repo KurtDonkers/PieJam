@@ -2,6 +2,7 @@ package com.piejam.androidclient;
 
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 class AndroidToPie {
     private static final int A2P_MSG_SIZE = 24;
@@ -15,7 +16,7 @@ class AndroidToPie {
 
     byte[] GetByteStream () {
         ByteBuffer bb = ByteBuffer.allocate(A2P_MSG_SIZE);
-        //b.order(ByteOrder.BIG_ENDIAN); // optional, the initial order of a byte buffer is always BIG_ENDIAN.
+        bb.order(ByteOrder.LITTLE_ENDIAN); // optional, the initial order of a byte buffer is always BIG_ENDIAN.
         bb.putInt (cmdid);
         bb.putInt (clientid);
         bb.putInt (nrofstars);
