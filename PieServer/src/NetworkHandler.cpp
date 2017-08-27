@@ -40,7 +40,7 @@ void UdpServer::DoReceive()
                 std::cout << "Received [";
                 for (unsigned int cidx = 0; cidx < bytes_recvd; cidx++)
                 {
-                    std::cout << mData[cidx];
+                    std::cout << (int)mData[cidx] << " ";
                 }
                 std::cout << "]." << std::endl;
 
@@ -67,24 +67,6 @@ float g; // [0..1]	16 - 19
 float b; // [0..1]	20 - 23
 */
 	mGfxRenderer = mNetworkHandler->getGfxRenderer();
-	for (int i = 0; i < 24; ++i) {
-            std::cout << "mData[" << i << "] = " << (int)mData[i] << std::endl;
-    }
-	if (mGfxRenderer != NULL) {
-		int nrofstars;
-		char nrofstars_arr[max_length] = {0};
-		if (mData != NULL) {
-			memcpy(&nrofstars_arr, &mData[8], 4);
-			nrofstars = atoi(nrofstars_arr);
-			std::cout << "Received: " << nrofstars << std::endl;
-		}
-		else {
-			std::cout << "mData is NULL!" << std::endl;
-		}
-	}
-	else {
-		std::cout << "GfxRenderer is NULL!" << std::endl;
-	}
 }
 
 void UdpServer::UpdateReplyStruct (int clientid)
@@ -93,6 +75,7 @@ void UdpServer::UpdateReplyStruct (int clientid)
     if (clientstruct == mReplyMap.end())
     {
         PieToCtrl reply = {0};
+        reply.responseid = 33;
         mReplyMap.insert (std::pair<int, PieToCtrl>(clientid, reply));
     }
     clientstruct->second.responseid += clientid;
