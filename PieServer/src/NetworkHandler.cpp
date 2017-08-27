@@ -4,14 +4,18 @@
 
 UdpServer::UdpServer (boost::asio::io_service& aIoService, short port)
   : mSocket (aIoService, boost::asio::ip::udp::endpoint (boost::asio::ip::udp::v4(), port))
+  , mReplyMap()
 {
     DoReceive();
 }
 
-void UdpServer::DoSend (std::size_t length)
+void UdpServer::DoReply (int clientid)
 {
+    UpdateReplyStruct (clientid);
+    auto clientstruct = mReplyMap.find (clientid)->second;
+    char* tDataToSend = (char*)(&clientstruct);
     mSocket.async_send_to(
-        boost::asio::buffer(mDataToSend, length), mSenderEndpoint,
+        boost::asio::buffer(tDataToSend, sizeof (struct PieToCtrl)), mSenderEndpoint,
         [this](boost::system::error_code /*ec*/, std::size_t /*bytes_sent*/)
         {
           DoReceive();
@@ -30,17 +34,39 @@ void UdpServer::DoReceive()
                 for (unsigned int cidx = 0; cidx < bytes_recvd; cidx++)
                 {
                     std::cout << mData[cidx];
-                    mDataToSend[bytes_recvd-cidx-1] = mData[cidx];
                 }
-                mDataToSend[bytes_recvd] = '\0';
                 std::cout << "]." << std::endl;
-                DoSend (bytes_recvd);
+
+                struct CtrlToPie
+                {
+                    int cmdid;
+                    int clientid;
+                    int nrofstars;
+                    float r; // [0..1]
+                    float g; // [0..1]
+                    float b; // [0..1]
+                };
+                struct CtrlToPie receivedCmd = {0};
+                memcpy (&receivedCmd, mData, sizeof (struct CtrlToPie));
+
+                DoReply (receivedCmd.clientid);
             }
             else
             {
                 DoReceive();
             }
         });
+}
+
+void UdpServer::UpdateReplyStruct (int clientid)
+{
+    auto clientstruct = mReplyMap.find (clientid);
+    if (clientstruct == mReplyMap.end())
+    {
+        struct PieToCtrl reply = {0};
+        mReplyMap.insert (std::pair<int, struct PieToCtrl>(clientid, reply));
+    }
+    clientstruct->second.responseid += clientid;
 }
 
 
@@ -76,5 +102,6 @@ void NetworkHandler::StartServer ()
         std::cerr << "Exception: " << e.what() << "\n";
     }
 }
+
 
 
