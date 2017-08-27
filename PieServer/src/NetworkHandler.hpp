@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 #include <thread>
+#include "GfxRenderer.hpp"
 
 struct CtrlToPie
 {
@@ -18,15 +19,19 @@ struct PieToCtrl
     int responseid;
 };
 
+class NetworkHandler;
+
 class UdpServer
 {
 public:
-    UdpServer (boost::asio::io_service& aIoService, short port);
+    UdpServer (boost::asio::io_service& aIoService, short port, NetworkHandler* N);
     void DoReceive (void);
     void DoReply (int clientid);
+    void setGfxRenderer(GfxRenderer* R);
 
 private:
     void UpdateReplyStruct (int clientid);
+    void ReadData(void);
     
 private:
     boost::asio::ip::udp::socket mSocket;
@@ -35,16 +40,21 @@ private:
     char mData[max_length];
     char mDataToSend[max_length];
     std::map <int, struct PieToCtrl> mReplyMap;
+
+    GfxRenderer* mGfxRenderer;
+    NetworkHandler* mNetworkHandler;
 };
 
 class NetworkHandler
 {
 public:
-    NetworkHandler() = default;
+    NetworkHandler();
     ~NetworkHandler();
 
     void StartNetworkHandler();
     void StopNetworkHandler();
+    void setGfxRenderer(GfxRenderer* R);
+    GfxRenderer* getGfxRenderer();
 
 private:
     void StartServer ();
@@ -52,4 +62,5 @@ private:
 private:
     unsigned short mPortNumber = 33100;
     std::thread* mNetworkThread;
+    GfxRenderer* mGfxRenderer;
 };

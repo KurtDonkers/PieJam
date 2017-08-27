@@ -11,7 +11,7 @@ int main (int argc, char* argv[])
 {
     try
     {
-        std::string tServerIp = "192.168.2.10";
+        std::string tServerIp = "192.168.2.39";
         std::string tServerPort = "33100";
 
         boost::asio::io_service io_service;
@@ -20,12 +20,20 @@ int main (int argc, char* argv[])
         udp::resolver resolver(io_service);
         udp::endpoint endpoint = *resolver.resolve({udp::v4(), tServerIp, tServerPort});
 
-        std::cout << "Enter message: ";
+        std::cout << "Enter number of stars: ";
         char request[max_length];
         std::cin.getline(request, max_length);
+        int input = atoi(request);
         size_t request_length = std::strlen(request);
 
-        s.send_to(boost::asio::buffer(request, request_length), endpoint);
+        char mData[max_length] = {0};
+        memcpy(&mData[8], &input, 4);
+
+        for (int i = 0; i < 24; ++i) {
+            std::cout << "mData[" << i << "] = " << (int)mData[i] << std::endl;
+        }
+
+        s.send_to(boost::asio::buffer(mData, request_length), endpoint);
 
         char reply[max_length];
         udp::endpoint sender_endpoint;
