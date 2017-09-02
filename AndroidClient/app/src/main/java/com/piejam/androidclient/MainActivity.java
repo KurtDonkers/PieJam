@@ -6,6 +6,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +27,9 @@ public class MainActivity extends AppCompatActivity {
     TextView mResponseOutput;
     EditText mClientIdInput;
     SeekBar mNrofStarsInput;
+    TextView mNrofStarsText;
     private int mCounter = 0;
+    int mClientId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,16 +49,61 @@ public class MainActivity extends AppCompatActivity {
         mResponseOutput = (TextView) findViewById(R.id.reply);
         mClientIdInput = (EditText) findViewById(R.id.clientidEdit);
         mNrofStarsInput = (SeekBar) findViewById(R.id.nrofStarsEdit);
+        mNrofStarsText = (TextView) findViewById(R.id.nrofstarstext);
+
+        mClientIdInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.length() != 0) {
+                    mClientId = Integer.parseInt(charSequence.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        mNrofStarsInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+                mNrofStarsText.setText(Integer.toString(progresValue));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+
+        });
+
+
         //mPieJamSocketHandler.connect();
         final AndroidToPie senddata = SetPacketToSend();
-        mPieJamSocketHandler.setSendData(senddata);
+        if (senddata.clientid != 0) {
+            mPieJamSocketHandler.setSendData(senddata);
+        }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 PieToAndroid rcvdata = mPieJamSocketHandler.getRcvData();
                 mResponseOutput.setText (Integer.toString(rcvdata.responseid));
                 AndroidToPie senddata2 = SetPacketToSend();
-                mPieJamSocketHandler.setSendData(senddata2);
+                if (senddata2.clientid != 0) {
+                    mPieJamSocketHandler.setSendData(senddata2);
+                }
                 handler.postDelayed(this, 100);
             }
         }, 100);
@@ -63,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     AndroidToPie SetPacketToSend () {
         AndroidToPie senddata = new AndroidToPie();
         senddata.cmdid = 42;
-        senddata.clientid = 0;//Integer.parseInt(mClientIdInput.getText().toString());
+        senddata.clientid = mClientId;//Integer.parseInt(mClientIdInput.getText().toString());
         senddata.nrofstars = mNrofStarsInput.getProgress();
         senddata.r = 0.0f;
         senddata.g = 0.0f;

@@ -14,5 +14,4 @@ class PieToAndroid {
         bb.order(ByteOrder.LITTLE_ENDIAN); // optional, the initial order of a byte buffer is always BIG_ENDIAN.
         responseid = bb.getInt();
     }
-
 }

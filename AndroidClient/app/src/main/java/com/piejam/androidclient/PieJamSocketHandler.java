@@ -55,7 +55,7 @@ class PieJamSocketHandler {
     private SenderReceiver mSenderReceiver = null;
 
     void connect() {
-        mSenderReceiver = new SenderReceiver("192.168.2.188", 33100);
+        mSenderReceiver = new SenderReceiver("192.168.2.61", 33100);
         mSendReceiveThread = new Thread (mSenderReceiver);
         mSendReceiveThread.start();
     }
