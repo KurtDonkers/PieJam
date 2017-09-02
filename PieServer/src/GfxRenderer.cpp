@@ -1,5 +1,6 @@
 #include "GfxRenderer.hpp"
 
+#include <iostream>
 #include <chrono>
 #include <GL/glut.h>
 #include <ctime>
@@ -21,7 +22,9 @@ GLfloat v[8][3];  /* Will be filled in with X,Y,Z vertexes. */
 static std::chrono::time_point<std::chrono::system_clock> simtimeStart;
 double mPrevSimTime = 0.0;
 
-const int NROF_STARS = 1000;
+clientInput GGfxInput = {0};
+
+const int NROF_STARS_MIN = 10;
 std::vector<std::unique_ptr<Star>> gStars;
 std::vector<std::unique_ptr<Planet>> gPlanets;
 
@@ -112,11 +115,35 @@ void drawSolarSystem (void)
     glEnd();
 }
 
+void stars_add(int stars)
+{
+    std::cout << "adding stars " << stars << std::endl;
+    for (int i=0; i < stars; ++i) {
+        std::unique_ptr<Star> star (new Star());
+        gStars.push_back (std::move (star));
+    }
+}
+
+void stars_remove(int stars)
+{
+    if (gStars.size() - stars < NROF_STARS_MIN)
+        stars = gStars.size() - NROF_STARS_MIN;
+    if (stars > 0)
+        std::cout << "removing stars " << stars << std::endl;
+    gStars.erase(gStars.begin(), gStars.begin() + stars);
+
+}
+
 // heartbeat update
 void update (double simtime)
 {
     double delta = simtime - mPrevSimTime;
     mPrevSimTime = simtime;
+    int stars_cur = gStars.size();
+    if (GGfxInput.nrofstars > stars_cur)
+        stars_add(GGfxInput.nrofstars - stars_cur);
+    else if (GGfxInput.nrofstars < stars_cur)
+        stars_remove(stars_cur - GGfxInput.nrofstars);
     for (auto& planet: gPlanets)
     {
         planet->Update (simtime);
@@ -154,7 +181,7 @@ void init (void)
     
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
     simtimeStart = std::chrono::system_clock::now();
-    for (int s = 0; s < NROF_STARS; ++s)
+    for (int s = 0; s < NROF_STARS_MIN; ++s)
     {
         std::unique_ptr<Star> star (new Star());
         gStars.push_back (std::move (star));

@@ -2,6 +2,12 @@
 
 #include <thread>
 
+struct clientInput
+{
+	int nrofstars;
+};
+
+extern clientInput GGfxInput;
 
 class GfxRenderer
 {

@@ -24,14 +24,14 @@ class NetworkHandler;
 class UdpServer
 {
 public:
-    UdpServer (boost::asio::io_service& aIoService, short port, NetworkHandler* N);
+    UdpServer (boost::asio::io_service& aIoService, short port);
     void DoReceive (void);
     void DoReply (int clientid);
-    void setGfxRenderer(GfxRenderer* R);
 
 private:
     void UpdateReplyStruct (int clientid);
-    void ReadData(void);
+    void UpdateCommandStruct (CtrlToPie receivedCmd);
+    void UpdateGfxInput(void);
     
 private:
     boost::asio::ip::udp::socket mSocket;
@@ -40,9 +40,7 @@ private:
     char mData[max_length];
     char mDataToSend[max_length];
     std::map <int, struct PieToCtrl> mReplyMap;
-
-    GfxRenderer* mGfxRenderer;
-    NetworkHandler* mNetworkHandler;
+    std::map <int, struct CtrlToPie> mCommandMap;
 };
 
 class NetworkHandler
@@ -53,8 +51,6 @@ public:
 
     void StartNetworkHandler();
     void StopNetworkHandler();
-    void setGfxRenderer(GfxRenderer* R);
-    GfxRenderer* getGfxRenderer();
 
 private:
     void StartServer ();
@@ -62,5 +58,4 @@ private:
 private:
     unsigned short mPortNumber = 33100;
     std::thread* mNetworkThread;
-    GfxRenderer* mGfxRenderer;
 };

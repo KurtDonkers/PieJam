@@ -2,17 +2,11 @@
 
 #include <iostream>
 
-UdpServer::UdpServer (boost::asio::io_service& aIoService, short port, NetworkHandler* N)
+UdpServer::UdpServer (boost::asio::io_service& aIoService, short port)
   : mSocket (aIoService, boost::asio::ip::udp::endpoint (boost::asio::ip::udp::v4(), port))
   , mReplyMap()
 {
-	mNetworkHandler = N;
-	mGfxRenderer = NULL;
     DoReceive();
-}
-
-void UdpServer::setGfxRenderer(GfxRenderer* R) {
-	mGfxRenderer = R;
 }
 
 void UdpServer::DoReply (int clientid)
@@ -49,7 +43,8 @@ void UdpServer::DoReceive()
 
                 DoReply (receivedCmd.clientid);
                 std::cout << "nr of stars = " << receivedCmd.nrofstars << std::endl;
-                ReadData();
+                UpdateCommandStruct(receivedCmd);
+                UpdateGfxInput();
             }
             else
             {
@@ -58,15 +53,12 @@ void UdpServer::DoReceive()
         });
 }
 
-void UdpServer::ReadData() {
-/*int cmdid;        0  - 3
-int clientid;       4  - 7
-int nrofstars;		8  - 11
-float r; // [0..1]	12 - 15
-float g; // [0..1]	16 - 19
-float b; // [0..1]	20 - 23
-*/
-	mGfxRenderer = mNetworkHandler->getGfxRenderer();
+void UdpServer::UpdateGfxInput() {
+	int totalstars = 0;
+	for (auto i : mCommandMap) {
+		totalstars += i.second.nrofstars;
+	}
+	GGfxInput.nrofstars = totalstars;
 }
 
 void UdpServer::UpdateReplyStruct (int clientid)
@@ -81,9 +73,13 @@ void UdpServer::UpdateReplyStruct (int clientid)
     clientstruct->second.responseid += clientid;
 }
 
+void UdpServer::UpdateCommandStruct (CtrlToPie receivedCmd)
+{
+    mCommandMap.insert (std::pair<int, CtrlToPie>(receivedCmd.clientid, receivedCmd));
+}
+
 NetworkHandler::NetworkHandler()
 {
-	mGfxRenderer = NULL;
 }
 
 NetworkHandler::~NetworkHandler()
@@ -101,16 +97,6 @@ void NetworkHandler::StopNetworkHandler()
     mNetworkThread->join();
 }
 
-void NetworkHandler::setGfxRenderer(GfxRenderer* R)
-{
-	mGfxRenderer = R;
-}
-
-GfxRenderer* NetworkHandler::getGfxRenderer()
-{
-	return mGfxRenderer;
-}
-
 void NetworkHandler::StartServer ()
 {
     std::cout << "sizeof int " << sizeof(int) << std::endl;
@@ -119,7 +105,7 @@ void NetworkHandler::StartServer ()
     try
     {
         boost::asio::io_service io_service;
-        UdpServer s(io_service, mPortNumber, this);
+        UdpServer s(io_service, mPortNumber);
         io_service.run();
     }
     catch (std::exception& e)
