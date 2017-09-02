@@ -75,7 +75,7 @@ void UdpServer::UpdateReplyStruct (int clientid)
 
 void UdpServer::UpdateCommandStruct (CtrlToPie receivedCmd)
 {
-    mCommandMap.insert (std::pair<int, CtrlToPie>(receivedCmd.clientid, receivedCmd));
+    mCommandMap[receivedCmd.clientid] = receivedCmd;
 }
 
 NetworkHandler::NetworkHandler()
